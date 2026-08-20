@@ -1,0 +1,60 @@
+# ---------------------------------------------------------------------------
+# sdkconfig.defaults -- Waveshare ESP32-S3 Touch AMOLED 2.06" voice recorder
+# Target: ESP32-S3R8 (8 MB PSRAM, 32 MB flash)
+# ESP-IDF v5.5.x
+#
+# Build:
+#   idf.py set-target esp32s3
+#   idf.py fullclean
+#   idf.py -B build build
+# (see README.md for the full flow)
+# ---------------------------------------------------------------------------
+
+# --- CPU / clock -----------------------------------------------------------
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ=240
+
+# --- PSRAM (octal, 8 MB) for LVGL frame buffer + audio ring buffers --------
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL=4096
+# LVGL buffers + I2S DMA + display framebuffer live here.
+CONFIG_SPIRAM_MALLOC_RESERVE_INTERNAL=16384
+
+# --- Flash (32 MB) ---------------------------------------------------------
+CONFIG_ESPTOOLPY_FLASHSIZE_32MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE="32MB"
+CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
+CONFIG_ESPTOOLPY_FLASHFREQ="80M"
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# --- FreeRTOS --------------------------------------------------------------
+CONFIG_FREERTOS_HZ=1000
+CONFIG_FREERTOS_UNICORE=n
+
+# --- I2C (shared bus for touch / PMU / RTC / IMU / codecs) -----------------
+CONFIG_I2C_SUPPRESS_DEPRECATE_WARN=y
+
+# --- I2S -------------------------------------------------------------------
+CONFIG_I2S_ISR_IRAM_SAFE=y
+
+# --- SD (TF card, SPI 1-bit) ----------------------------------------------
+CONFIG_SDMMC_USE_SDIO_INTERFACE=n
+CONFIG_ESP_SDMMC_SUPPORT=n
+# esp-sdspi is the SPI backend used by the storage layer.
+CONFIG_SPI_FLASH_SUPPORT_HYPER_FLASH=y
+
+# --- Logging ---------------------------------------------------------------
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+CONFIG_LOG_TIMESTAMP_SOURCE_RTOS=y
+
+# --- WiFi / BT: disabled (battery device, no network in this build) --------
+CONFIG_ESP_WIFI_ENABLED=n
+CONFIG_BT_ENABLED=n
+
+# --- Enable C++ for the application (main) --------------------------------
+# (main/CMakeLists.txt sets LANGUAGES cxx explicitly)
+CONFIG_COMPILER_OPTIMIZE_DEBUG=n
+CONFIG_COMPILER_OPTIMIZATION_RELEASE=y
