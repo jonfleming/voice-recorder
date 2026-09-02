@@ -1,0 +1,39 @@
+menu "Voice Recorder Config"
+
+    config RECORDER_SAMPLE_RATE
+        int "Recorder sample rate"
+        default 16000
+
+    config RECORDER_BITS_PER_SAMPLE
+        int "Bits per sample"
+        default 16
+
+    config RECORDER_CHANNELS
+        int "Channels"
+        default 1
+
+    config BUTTON_A_GPIO
+        int "Button A GPIO (record start/stop)"
+        default 0
+        help
+            BOOT button on Waveshare board. Pull-up, active low.
+
+    config BUTTON_B_GPIO
+        int "Button B GPIO (playback)"
+        default 21
+        help
+            Touch INT or spare GPIO. Set to -1 to disable if conflicting.
+
+    config BUTTON_DEBOUNCE_MS
+        int "Button debounce ms"
+        default 50
+
+    config BUTTON_SHORT_PRESS_MS
+        int "Short press threshold ms"
+        default 50
+
+    config BUTTON_LONG_PRESS_MS
+        int "Long press threshold ms"
+        default 1000
+
+endmenu

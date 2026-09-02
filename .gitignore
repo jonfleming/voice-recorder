@@ -1,0 +1,63 @@
+# ESP-IDF Build Artifacts
+build/
+sdkconfig
+sdkconfig.old
+sdkconfig.bak
+
+# If you want to keep sdkconfig in version control, comment the lines above and keep sdkconfig.defaults as the source of truth.
+# This project keeps sdkconfig.defaults (LFN_HEAP, BUTTON_B=-1, PSRAM octal) and generates sdkconfig on build.
+
+# IDF Component Manager
+# Uncomment to ignore managed components (they are re-fetched from idf_component.yml).
+# This project patches waveshare__esp32_s3_touch_amoled_1_8 for touch/power robustness,
+# so it is kept tracked. To ignore upstream components, uncomment:
+# managed_components/
+
+# Keep dependencies.lock for reproducible builds (comment to ignore)
+# dependencies.lock
+
+# Bootloader and partition table binaries (generated)
+# Already in build/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+pip-log.txt
+
+# IDE / Editors
+.vscode/
+.idea/
+*.code-workspace
+*.swp
+*.swo
+*~
+*.bak
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.lnk
+
+# Espressif Tools / Debug
+*.elf
+*.map
+*.bin
+!build/bootloader/bootloader.bin
+!build/partition_table/partition-table.bin
+!build/voice-recorder.bin
+# Above keeps build artifacts ignored except explicit binaries if you want to commit them, comment as needed
+
+# Logs
+*.log
+idf_monitor_*.txt
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
