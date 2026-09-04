@@ -1,0 +1,6 @@
+# Voice Recorder - Waveshare ESP32-S3 AMOLED 2.06" (410x502 QSPI, CO5300/SH8601)
+# Overlay on top of sdkconfig.defaults:
+#   idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.2_06" build
+# or: idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.2_06" flash monitor
+CONFIG_TARGET_BOARD_1_8=n
+CONFIG_TARGET_BOARD_2_06=y

@@ -1,5 +1,6 @@
 dependencies:
   idf: ">=5.5"
   waveshare/esp32_s3_touch_amoled_1_8: "^2.0.3"
+  waveshare/esp32_s3_touch_amoled_2_06: "^2.0.0"
   espressif/esp_codec_dev: "^1.5.0"
   lvgl/lvgl: "^9.2.2"

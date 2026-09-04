@@ -1,5 +1,5 @@
 #include "ui_manager.h"
-#include "bsp/esp32_s3_touch_amoled_1_8.h"
+#include "board.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "lvgl.h"
@@ -22,6 +22,20 @@ static lv_obj_t *status_label = NULL;
 static wav_file_info_t s_files[FS_MAX_FILES];
 static size_t s_file_count = 0;
 static int s_selected = -1;
+
+// Resolution-adaptive sizing (410x502 vs 368x448)
+#ifndef BSP_LCD_H_RES
+#define BSP_LCD_H_RES 368
+#endif
+#ifndef BSP_LCD_V_RES
+#define BSP_LCD_V_RES 448
+#endif
+#define UI_LIST_W   (BSP_LCD_H_RES - 28)   // 340 on 1.8", 382 on 2.06"
+#define UI_LIST_H   (BSP_LCD_V_RES - 148)  // 300 on 1.8", 354 on 2.06"
+#define UI_CHART_W  (BSP_LCD_H_RES - 48)   // 320 on 1.8", 362 on 2.06"
+#define UI_BAR_W    (BSP_LCD_H_RES - 48)
+#define UI_BTN_W    (BSP_LCD_H_RES - 28)
+#define UI_LABEL_W  (BSP_LCD_H_RES - 48)
 static file_selected_cb_t s_cb = NULL;
 static volatile bool s_play_req = false;
 static lv_obj_t *play_btn = NULL;
@@ -101,9 +115,9 @@ static void show_delete_dialog(int idx)
         return;
     }
     s_delete_pending_idx = idx;
-    // Semi-transparent overlay
+    // Semi-transparent overlay — full screen per board resolution
     delete_overlay = lv_obj_create(scr);
-    lv_obj_set_size(delete_overlay, 368, 448);
+    lv_obj_set_size(delete_overlay, BSP_LCD_H_RES, BSP_LCD_V_RES);
     lv_obj_align(delete_overlay, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_bg_color(delete_overlay, lv_color_hex(0x000000), 0);
     lv_obj_set_style_bg_opa(delete_overlay, LV_OPA_50, 0);
@@ -262,7 +276,7 @@ esp_err_t ui_show_recording(uint32_t elapsed_sec, uint16_t rms)
         lv_obj_set_style_text_color(time_label, lv_color_white(), 0);
         // Scrolling waveform chart - 20-30 FPS RMS history (spec 5.1)
         wave_chart = lv_chart_create(scr);
-        lv_obj_set_size(wave_chart, 320, 88);
+        lv_obj_set_size(wave_chart, UI_CHART_W, 88);
         lv_obj_align(wave_chart, LV_ALIGN_CENTER, 0, 12);
         lv_obj_set_style_bg_color(wave_chart, lv_color_hex(0x111111), 0);
         lv_obj_set_style_border_color(wave_chart, lv_color_hex(0x333333), 0);
@@ -278,7 +292,7 @@ esp_err_t ui_show_recording(uint32_t elapsed_sec, uint16_t rms)
         for (int i = 0; i < WAVE_POINTS; i++) lv_chart_set_next_value(wave_chart, wave_series, 0);
         // Current level bar below chart
         wave_bar = lv_bar_create(scr);
-        lv_obj_set_size(wave_bar, 320, 14);
+        lv_obj_set_size(wave_bar, UI_BAR_W, 14);
         lv_obj_align(wave_bar, LV_ALIGN_CENTER, 0, 78);
         lv_obj_set_style_bg_color(wave_bar, lv_color_hex(0x222222), 0);
         lv_obj_set_style_bg_color(wave_bar, lv_color_hex(0x00ff88), LV_PART_INDICATOR);
@@ -331,7 +345,7 @@ esp_err_t ui_show_file_browser(const wav_file_info_t *files, size_t count, int s
 
     // Create scrollable list (reduced height to leave room for PLAY button)
     file_list = lv_list_create(scr);
-    lv_obj_set_size(file_list, 340, 300);
+    lv_obj_set_size(file_list, UI_LIST_W, UI_LIST_H);
     lv_obj_align(file_list, LV_ALIGN_TOP_MID, 0, 50);
     lv_obj_set_style_bg_color(file_list, lv_color_black(),0);
     lv_obj_set_style_pad_all(file_list, 4,0);
@@ -360,7 +374,7 @@ esp_err_t ui_show_file_browser(const wav_file_info_t *files, size_t count, int s
 
     // On-screen Play button fallback when physical Button B is disabled (touch INT conflict)
     play_btn = lv_btn_create(scr);
-    lv_obj_set_size(play_btn, 340, 42);
+    lv_obj_set_size(play_btn, UI_BTN_W, 42);
     lv_obj_align(play_btn, LV_ALIGN_BOTTOM_MID, 0, -28);
     lv_obj_set_style_bg_color(play_btn, lv_color_hex(0x00aa44), 0);
     lv_obj_set_style_radius(play_btn, 8, 0);
@@ -407,7 +421,7 @@ esp_err_t ui_show_playback(const char *filename, uint32_t elapsed_sec, uint32_t 
         lv_obj_align(fn, LV_ALIGN_CENTER, 0, -30);
         lv_obj_set_style_text_color(fn, lv_color_white(),0);
         lv_label_set_long_mode(fn, LV_LABEL_LONG_SCROLL_CIRCULAR);
-        lv_obj_set_width(fn, 320);
+        lv_obj_set_width(fn, UI_LABEL_W);
         // store reference via time_label for reuse? We'll recreate each update
         time_label = lv_label_create(scr);
         lv_obj_align(time_label, LV_ALIGN_CENTER, 0, 20);

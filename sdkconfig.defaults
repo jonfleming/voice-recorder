@@ -1,4 +1,6 @@
-# Voice Recorder - Waveshare ESP32-S3 AMOLED 1.8" (368x448 QSPI)
+# Voice Recorder - default Waveshare ESP32-S3 AMOLED 1.8" (368x448 QSPI, CO5300)
+# For 2.06" 410x502 build: run `idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.2_06" build`
+# or menuconfig → Voice Recorder Config → Target board → 2.06"
 CONFIG_IDF_TARGET="esp32s3"
 CONFIG_SPIRAM=y
 CONFIG_SPIRAM_MODE_OCT=y
@@ -12,6 +14,10 @@ CONFIG_PARTITION_TABLE_MD5=y
 # PSRAM / Flash
 CONFIG_SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY=y
 CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=y
+
+# Board selection (see main/Kconfig.projbuild → choice TARGET_BOARD)
+CONFIG_TARGET_BOARD_1_8=y
+# CONFIG_TARGET_BOARD_2_06 is not set
 
 # BSP configs (mirrors waveshare BSP Kconfig)
 CONFIG_BSP_I2C_NUM=1

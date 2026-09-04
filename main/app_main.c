@@ -7,7 +7,7 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 
-#include "bsp/esp32_s3_touch_amoled_1_8.h"
+#include "board.h"
 #include "bsp/display.h"
 #include "bsp/touch.h"
 
@@ -53,7 +53,7 @@ static void set_state(app_state_t ns)
 void app_main(void)
 {
     ESP_LOGI(TAG, "Voice Recorder firmware starting");
-    ESP_LOGI(TAG, "Target: Waveshare ESP32-S3 AMOLED 1.8 368x448 QSPI, ES8311, SDMMC");
+    ESP_LOGI(TAG, "Target: %s QSPI, ES8311, SDMMC", board_name());
 
     // Init display + LVGL (Waveshare BSP handles QSPI 368x448 CO5300 + CST820/FT3168)
     // Suppress noisy I2C probe logs during detection (matches stock demo)

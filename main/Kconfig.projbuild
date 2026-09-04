@@ -1,5 +1,19 @@
 menu "Voice Recorder Config"
 
+    choice TARGET_BOARD
+        prompt "Target Waveshare board"
+        default TARGET_BOARD_1_8
+        help
+            Select the Waveshare AMOLED board variant. Each generates a
+            separate binary (different resolution, display init cmds,
+            touch/I2S pinout). Leave at 1.8" for current hardware.
+
+        config TARGET_BOARD_1_8
+            bool "Waveshare ESP32-S3 AMOLED 1.8\" 368x448 (CO5300)"
+        config TARGET_BOARD_2_06
+            bool "Waveshare ESP32-S3 AMOLED 2.06\" 410x502 (CO5300 / SH8601)"
+    endchoice
+
     config RECORDER_SAMPLE_RATE
         int "Recorder sample rate"
         default 16000

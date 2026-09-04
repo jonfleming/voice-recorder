@@ -1,7 +1,7 @@
 #include "audio_recorder.h"
 #include "audio_commons.h"
 #include "wav.h"
-#include "bsp/esp32_s3_touch_amoled_1_8.h"
+#include "board.h"
 #include "esp_codec_dev.h"
 #include "esp_log.h"
 #include "esp_timer.h"

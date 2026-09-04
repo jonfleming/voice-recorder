@@ -1,5 +1,5 @@
 #include "audio_commons.h"
-#include "bsp/esp32_s3_touch_amoled_1_8.h"
+#include "board.h"
 #include "esp_log.h"
 #include "esp_codec_dev_defaults.h"
 #include "driver/i2s_std.h"

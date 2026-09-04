@@ -1,5 +1,5 @@
 #include "filesystem_manager.h"
-#include "bsp/esp32_s3_touch_amoled_1_8.h"
+#include "board.h"
 #include "esp_log.h"
 #include "esp_vfs_fat.h"
 #include "sdmmc_cmd.h"
