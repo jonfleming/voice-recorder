@@ -10,7 +10,8 @@ idf_component_register(
          "state_machine.c"
          "power_manager.c"
     INCLUDE_DIRS "."
-     REQUIRES esp32_s3_touch_amoled_1_8 esp32_s3_touch_amoled_2_06 esp_codec_dev esp_driver_gpio esp_driver_i2s esp_lcd esp_lcd_touch esp_lvgl_port lvgl sdmmc fatfs spiffs wpa_supplicant esp_timer
+     # Waveshare BSP is pulled in by idf_component.yml (exactly one of 1.8 / 2.06).
+     REQUIRES esp_codec_dev esp_driver_gpio esp_driver_i2s esp_lcd esp_lcd_touch esp_lvgl_port lvgl sdmmc fatfs spiffs wpa_supplicant esp_timer
     PRIV_REQUIRES esp_timer
 )
 target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-error=format-truncation -Wno-error=format-overflow)

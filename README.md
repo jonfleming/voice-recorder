@@ -1,6 +1,6 @@
-# Voice Recorder — Waveshare ESP32-S3 AMOLED 1.8" (368×448)
+# Voice Recorder — Waveshare ESP32-S3 AMOLED 1.8" / 2.06"
 
-ESP-IDF v5.5.5 firmware for Waveshare ESP32-S3 Touch AMOLED 1.08/1.8" board. Implements
+ESP-IDF v5.5.5 firmware for Waveshare ESP32-S3 Touch AMOLED 1.8" (368×448) and 2.06" (410×502). Implements
 spec `Voice-Recorder-Spec-opencode.md` as amended 2026-09-02: recording (WAV 16k mono 16-bit) with 20 Hz scrolling waveform, file browser (newest first) with delete, playback via touch, and PWR-button display toggle for battery save.
 
 ## Hardware (Amended)
@@ -48,9 +48,16 @@ Use `C:\Users\jonfl\Dropbox\Tools\esp.cmd` to open an IDF shell, or:
 
 ```powershell
 . 'C:\Espressif\tools\Microsoft.v5.5.5.PowerShell_profile.ps1'
+# Pick the board in menuconfig (Voice Recorder Config → Target Waveshare board),
+# then fullclean when switching so the other BSP is not linked:
+#   idf.py menuconfig
+#   idf.py fullclean
+#   idf.py build
 idf.py build
 idf.py -p COMx flash monitor
 ```
+
+One binary per board. See [BUILD.md](BUILD.md).
 
 Binary: `build/voice-recorder.bin` (83% free on 4 MB factory partition). Flash with:
 ```powershell

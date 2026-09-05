@@ -1,6 +1,7 @@
 #include "audio_player.h"
 #include "audio_commons.h"
 #include "wav.h"
+#include "board.h"
 #include "esp_codec_dev.h"
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -45,10 +46,10 @@ static void player_task(void *arg)
     s_played_bytes = 0;
     s_start_us = esp_timer_get_time();
 
-    // Open codec
+    // Open codec at the board's I2S slot layout (2.06 is stereo even for mono WAVs)
     esp_codec_dev_sample_info_t fs = {
         .bits_per_sample = hdr.bits_per_sample,
-        .channel = hdr.num_channels,
+        .channel = BOARD_AUDIO_CHANNELS,
         .channel_mask = 0,
         .sample_rate = hdr.sample_rate,
         .mclk_multiple = 256,
@@ -78,17 +79,30 @@ static void player_task(void *arg)
     }
     s_spk_open = (open_ret == ESP_CODEC_DEV_OK);
     esp_codec_dev_set_out_mute(s_spk, false);
-    // ES8311 on original FT5x06 board needs ~70, V2/CST820 needs 90; use 92 for audible playback
-    audio_common_set_volume(92);
-    ESP_LOGI(TAG, "speaker opened sr=%lu ch=%d vol=92", (unsigned long)hdr.sample_rate, hdr.num_channels);
+    audio_common_set_volume(BOARD_SPK_VOLUME);
+    ESP_LOGI(TAG, "speaker opened file_sr=%lu file_ch=%d bus_ch=%d vol=%d",
+             (unsigned long)hdr.sample_rate, hdr.num_channels, BOARD_AUDIO_CHANNELS, BOARD_SPK_VOLUME);
 
     // Small settle after PA enable
     vTaskDelay(pdMS_TO_TICKS(30));
     uint8_t buf[1024];
+    int16_t stereo[1024]; // enough for 512 mono frames duplicated to L/R
     while (s_playing) {
         size_t n = fread(buf, 1, sizeof(buf), f);
         if (n == 0) break; // EOF
-        int ret = esp_codec_dev_write(s_spk, buf, n);
+        const void *out = buf;
+        size_t out_n = n;
+        if (BOARD_AUDIO_CHANNELS == 2 && hdr.num_channels == 1 && hdr.bits_per_sample == 16) {
+            size_t frames = n / 2;
+            const int16_t *src = (const int16_t *)buf;
+            for (size_t i = 0; i < frames; i++) {
+                stereo[i * 2] = src[i];
+                stereo[i * 2 + 1] = src[i];
+            }
+            out = stereo;
+            out_n = frames * 4;
+        }
+        int ret = esp_codec_dev_write(s_spk, (void *)out, out_n);
         if (ret != ESP_CODEC_DEV_OK) {
             ESP_LOGE(TAG, "write failed %d", ret);
             break;
@@ -127,7 +141,7 @@ esp_err_t player_play(const char *path)
     s_total_bytes = 0;
     // Allocate copy for task
     char *copy = strdup(s_path);
-    xTaskCreate(player_task, "play_task", 4096, copy, 5, &s_task);
+    xTaskCreate(player_task, "play_task", 6144, copy, 5, &s_task);
     // task will free? we leak small strdup but OK; player_task will free path param when done? we strdup again
     // Actually we pass strdup pointer; need free inside task after open - we dup string inside task copy is leaked
     // Free after create is unsafe; let task free

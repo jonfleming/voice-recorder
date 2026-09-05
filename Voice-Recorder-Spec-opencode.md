@@ -1,9 +1,9 @@
 Project Folder: C:\Projects\voice-recorder
 ESP-IDF Environment: C:\Users\jonfl\Dropbox\Tools\esp.cmd
 ---
-# **Firmware Specification — Waveshare ESP32‑S3 AMOLED 1.08" Touch Display**
+# **Firmware Specification — Waveshare ESP32‑S3 AMOLED 1.8" Touch Display**
 ### **Project: Audio Recorder + File Browser + Playback**
-### **Target Hardware: Waveshare ESP32‑S3 AMOLED 1.08" Touch Display**
+### **Target Hardware: Waveshare ESP32‑S3 AMOLED 1.8" Touch Display**
 ### **Author: Jon**
 ### **Date: 2026‑09-01**
 ### **Amendment Date: 2026‑09-02 — Implementation amendments (see §10, Changelog)**
@@ -396,7 +396,7 @@ Example:
 
 | Date | Area | Original Spec | Amended Implementation | Reason |
 |------|------|---------------|------------------------|--------|
-| 2026-09-02 | Hardware §1.2/1.4 | `Button B = GPIO pull-up`, display 1.08" | `Button A=BOOT GPIO0`, `Button B=PWR via AXP2101 0x34` for **display toggle**, `BUTTON_B_GPIO=-1`, display `1.8" 368×448 CO5300 QSPI`, `I2C 15/14 400k pullup+glitch` | `GPIO21` is `TOUCH_INT` → phantom presses + `Touch not found`; PWR documented as customizable. Playback moved to touch. |
+| 2026-09-02 | Hardware §1.2/1.4 | `Button B = GPIO pull-up`, display 1.8" | `Button A=BOOT GPIO0`, `Button B=PWR via AXP2101 0x34` for **display toggle**, `BUTTON_B_GPIO=-1`, display `1.8" 368×448 CO5300 QSPI`, `I2C 15/14 400k pullup+glitch` | `GPIO21` is `TOUCH_INT` → phantom presses + `Touch not found`; PWR documented as customizable. Playback moved to touch. |
 | 2026-09-02 | Storage §1.5 | `MicroSD via SPI or SDMMC` | `SDMMC 1-bit 2/1/3` `FATFS_LFN_HEAP=y` (was `NONE` → `file.wav` truncated to 8.3) | `YYYYMMDD_HHMMSS.wav` 19 chars needs LFN; BSP warning silenced |
 | 2026-09-02 | Recording §2.1 | `waveform nice-to-have` | Implemented scrolling chart `40 pts` + bar at `20 Hz` `RMS+peak` `0..1000` | Spec optional → now required for level indication; previous flat-line due to `*1000/32768` → now `*1000/4000` `1.4×` |
 | 2026-09-02 | File Browser §2.2 | `tap to select` only | Added `PLAY 340×42` button, **double-tap 600 ms → play**, **long-press 400 ms → Delete? dialog** `Cancel/Delete` | `B` disabled → need touch playback; user requested delete |

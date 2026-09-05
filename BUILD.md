@@ -21,11 +21,39 @@ Option B — PowerShell:
 idf.py --version   # → ESP-IDF v5.5.5
 ```
 
+### Board selection (required — one binary per panel)
+
+The 1.8" and 2.06" Waveshare BSPs export the **same `bsp_*` symbols**. Linking
+both (or flipping only menuconfig) still runs 1.8 display/touch init: 368×448
+window + GPIO21 touch INT on a 410×502 panel (green L leftover, dead touch).
+
+CMake links exactly one BSP. **menuconfig is the usual way to pick it:**
+
+```powershell
+cd C:\Projects\ai-voice-assistant\voice-recorder
+idf.py menuconfig
+# → Voice Recorder Config → Target Waveshare board → 1.8" or 2.06"
+idf.py fullclean    # required when switching boards (drops the other BSP)
+idf.py build
+```
+
+A fresh tree (no `sdkconfig` yet) can also pass `-DWAVESHARE_AMOLED_2_06_BOARD=ON`,
+which applies the 32 MB flash overlay while generating sdkconfig.
+
+```powershell
+# 2.06" from a clean tree
+Remove-Item -ErrorAction SilentlyContinue sdkconfig
+idf.py fullclean
+idf.py "-DWAVESHARE_AMOLED_2_06_BOARD=ON" build
+```
+
+On a correct 2.06 boot the log should show:
+`Target: Waveshare ESP32-S3 AMOLED 2.06" 410x502` and `LVGL display 410x502`.
+
 ### Build
 ```powershell
-cd C:\Projects\voice-recorder-opencode
-idf.py fullclean   # optional
-idf.py build
+idf.py build                                          # 1.8"
+# idf.py -DWAVESHARE_AMOLED_2_06_BOARD=ON build       # 2.06"
 ```
 Output:
 - `build/voice-recorder.bin` (≈ 700 KB)
@@ -35,7 +63,8 @@ Output:
 ### Flash
 ```powershell
 idf.py -p COMx flash         # auto-detect port; or specify COM5 etc.
-# or manual esptool:
+# 1.8 is 16 MB flash; 2.06 is 32 MB — idf.py flash uses the configured size.
+# or manual esptool (adjust --flash_size to 16MB or 32MB):
 python -m esptool --chip esp32s3 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 16MB --flash_freq 80m 0x0 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0x10000 build/voice-recorder.bin
 ```
 Enter download mode: hold BOOT, tap RST, release BOOT.
@@ -49,7 +78,7 @@ idf.py -p COMx monitor
 ### Menuconfig (optional)
 ```powershell
 idf.py menuconfig
-# → Voice Recorder Config: Button GPIOs, debounce
+# → Voice Recorder Config: Target board (then fullclean + build), buttons, debounce
 # → Board Support Package: I2C/I2S/SD speeds
 # → Component config → LVGL etc.
 idf.py build
@@ -66,8 +95,9 @@ storage,  data, spiffs,  ,       0xF0000,
 SD stores WAVs; SPIFFS unused but reserved.
 
 ### Dependencies (auto-fetched via `idf_component.yml`)
-- `waveshare/esp32_s3_touch_amoled_1_8 ^2.0.3` (display/touch/SD/audio BSP)
-- `espressif/esp_codec_dev ^1.5.0` (ES8311)
+- Exactly one of `waveshare/esp32_s3_touch_amoled_1_8 ^2.0.3` or
+  `waveshare/esp32_s3_touch_amoled_2_06 ^2.0.0` (selected by `VOICE_RECORDER_BOARD`)
+- `espressif/esp_codec_dev ^1.5.0` (ES8311; 2.06 also uses ES7210 for the mics)
 - `lvgl/lvgl ^9.2.2` + `esp_lvgl_port`
 
 No manual `Arduino_DriveBus / Arduino_GFX / lv_conf.h` needed — BSP bundles LVGL port. Waveshare Arduino libs referenced in spec are for Arduino path; this is ESP-IDF native.

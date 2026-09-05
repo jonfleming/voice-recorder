@@ -1,6 +1,7 @@
 # Voice Recorder - default Waveshare ESP32-S3 AMOLED 1.8" (368x448 QSPI, CO5300)
-# For 2.06" 410x502 build: run `idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.2_06" build`
-# or menuconfig → Voice Recorder Config → Target board → 2.06"
+# For 2.06": delete sdkconfig, then
+#   idf.py -DWAVESHARE_AMOLED_2_06_BOARD=ON build
+# Menuconfig TARGET_BOARD alone does not select the BSP.
 CONFIG_IDF_TARGET="esp32s3"
 CONFIG_SPIRAM=y
 CONFIG_SPIRAM_MODE_OCT=y

@@ -98,19 +98,31 @@ static uint16_t compute_level(int16_t *samples, size_t n)
 static void recorder_task(void *arg)
 {
     (void)arg;
-    int16_t buf[REC_READ_CHUNK/2];
+    // Read enough PCM for REC_READ_CHUNK bytes of mono WAV output.
+    // 2.06 ES7210 delivers interleaved L/R; we average to mono for the file.
+    int16_t raw[REC_READ_CHUNK / 2 * BOARD_AUDIO_CHANNELS];
+    int16_t mono[REC_READ_CHUNK / 2];
     ESP_LOGI(TAG, "recorder task started");
     while (s_recording) {
         if (!s_mic || !s_file) { vTaskDelay(pdMS_TO_TICKS(10)); continue; }
-        int ret = esp_codec_dev_read(s_mic, buf, sizeof(buf));
+        int ret = esp_codec_dev_read(s_mic, raw, sizeof(raw));
         if (ret != ESP_CODEC_DEV_OK) {
             ESP_LOGE(TAG, "mic read failed %d", ret);
             vTaskDelay(pdMS_TO_TICKS(10));
             continue;
         }
-        s_rms = compute_level(buf, sizeof(buf)/2);
-        size_t written = fwrite(buf, 1, sizeof(buf), s_file);
-        if (written != sizeof(buf)) {
+        const int16_t *out = raw;
+        size_t n_mono = REC_READ_CHUNK / 2;
+        if (BOARD_AUDIO_CHANNELS == 2) {
+            for (size_t i = 0; i < n_mono; i++) {
+                int32_t s = ((int32_t)raw[i * 2] + (int32_t)raw[i * 2 + 1]) >> 1;
+                mono[i] = (int16_t)s;
+            }
+            out = mono;
+        }
+        s_rms = compute_level((int16_t *)out, n_mono);
+        size_t written = fwrite(out, 1, REC_READ_CHUNK, s_file);
+        if (written != REC_READ_CHUNK) {
             ESP_LOGE(TAG, "SD write failed");
             // continue but log
         } else {
@@ -160,7 +172,11 @@ esp_err_t recorder_start(void)
         s_mic_open = false;
     }
     esp_codec_dev_sample_info_t fs = {
-        .bits_per_sample=16,.channel=1,.channel_mask=0,.sample_rate=16000,.mclk_multiple=256
+        .bits_per_sample=16,
+        .channel=BOARD_AUDIO_CHANNELS,
+        .channel_mask=0,
+        .sample_rate=16000,
+        .mclk_multiple=256
     };
     int ret = esp_codec_dev_open(s_mic, &fs);
     if (ret != ESP_CODEC_DEV_OK) {
@@ -170,10 +186,11 @@ esp_err_t recorder_start(void)
         return ESP_FAIL;
     }
     s_mic_open = true;
-    // Set input gain and unmute
-    esp_codec_dev_set_in_gain(s_mic, 30.0f);
+    // ES7210 (2.06) and ES8311 (1.8): 30 dB. The Waveshare 2.06 example uses
+    // 24 dB, which is too quiet for this recorder (same lesson as the 1.8).
+    esp_codec_dev_set_in_gain(s_mic, BOARD_MIC_GAIN_DB);
     esp_codec_dev_set_in_mute(s_mic, false);
-    ESP_LOGI(TAG, "mic opened sr=16000 gain=30dB level will show on bar");
+    ESP_LOGI(TAG, "mic opened sr=16000 ch=%d gain=%.0fdB", BOARD_AUDIO_CHANNELS, (double)BOARD_MIC_GAIN_DB);
     s_recording = true;
     BaseType_t created = xTaskCreate(recorder_task, "rec_task", REC_TASK_STACK, NULL, REC_TASK_PRIO, &s_task);
     if (created != pdPASS) {

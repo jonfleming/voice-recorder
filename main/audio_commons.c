@@ -11,11 +11,14 @@ static esp_codec_dev_handle_t s_mic = NULL;
 
 static esp_err_t ensure_i2s_16k(void)
 {
-    // Use BSP audio init with 16k config on first call.
-    // BSP will early-return afterwards, so this must be first call.
+    // Must be the first bsp_audio_init() call — the BSP early-returns after that.
+    // 2.06: shared I2S is stereo (ES7210 dual-mic + ES8311 DAC).
+    // 1.8: ES8311 full-duplex mono.
+    i2s_slot_mode_t slot = (BOARD_AUDIO_CHANNELS == 2) ? I2S_SLOT_MODE_STEREO
+                                                       : I2S_SLOT_MODE_MONO;
     i2s_std_config_t cfg = {
         .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(16000),
-        .slot_cfg = I2S_STD_PHILIP_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_MONO),
+        .slot_cfg = I2S_STD_PHILIP_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_16BIT, slot),
         .gpio_cfg = {
             .mclk = BSP_I2S_MCLK,
             .bclk = BSP_I2S_SCLK,
@@ -30,7 +33,9 @@ static esp_err_t ensure_i2s_16k(void)
         ESP_LOGE(TAG, "bsp_audio_init failed: %s", esp_err_to_name(r));
         return r;
     }
-    ESP_LOGI(TAG, "I2S initialized at 16kHz mono");
+    ESP_LOGI(TAG, "I2S initialized at 16kHz %s (BCLK=%d DOUT=%d DIN=%d)",
+             BOARD_AUDIO_CHANNELS == 2 ? "stereo" : "mono",
+             (int)BSP_I2S_SCLK, (int)BSP_I2S_DOUT, (int)BSP_I2S_DSIN);
     return ESP_OK;
 }
 

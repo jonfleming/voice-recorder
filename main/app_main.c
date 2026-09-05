@@ -10,6 +10,7 @@
 #include "board.h"
 #include "bsp/display.h"
 #include "bsp/touch.h"
+#include "lvgl.h"
 
 #include "filesystem_manager.h"
 #include "audio_recorder.h"
@@ -53,19 +54,24 @@ static void set_state(app_state_t ns)
 void app_main(void)
 {
     ESP_LOGI(TAG, "Voice Recorder firmware starting");
-    ESP_LOGI(TAG, "Target: %s QSPI, ES8311, SDMMC", board_name());
+    ESP_LOGI(TAG, "Target: %s  panel %dx%d  audio %dch",
+             board_name(), BOARD_LCD_H_RES, BOARD_LCD_V_RES, BOARD_AUDIO_CHANNELS);
 
-    // Init display + LVGL (Waveshare BSP handles QSPI 368x448 CO5300 + CST820/FT3168)
-    // Suppress noisy I2C probe logs during detection (matches stock demo)
+    // Init display + LVGL. The linked BSP owns QSPI + touch (1.8: CST820/FT5x06
+    // INT 21; 2.06: FT5x06 INT 38 RST 9). Do not link both BSPs.
     esp_log_level_t i2c_log = esp_log_level_get("i2c.master");
     esp_log_level_set("i2c.master", ESP_LOG_NONE);
     lv_display_t *disp = bsp_display_start();
     esp_log_level_set("i2c.master", i2c_log);
     if (!disp) {
-        ESP_LOGE(TAG, "Display init failed - check QSPI wiring and PSRAM octal mode");
+        ESP_LOGE(TAG, "Display init failed - check QSPI wiring, PSRAM octal mode, and board CMake flag");
         vTaskDelay(pdMS_TO_TICKS(5000));
         esp_restart();
     }
+    ESP_LOGI(TAG, "LVGL display %dx%d (expect %dx%d)",
+             (int)lv_display_get_horizontal_resolution(disp),
+             (int)lv_display_get_vertical_resolution(disp),
+             BOARD_LCD_H_RES, BOARD_LCD_V_RES);
     esp_err_t br = bsp_display_brightness_set(100);
     if (br != ESP_OK) {
         ESP_LOGE(TAG, "brightness_set(100) failed %s - display may stay dark", esp_err_to_name(br));

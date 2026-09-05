@@ -29,34 +29,6 @@ dependencies:
       registry_url: https://components.espressif.com
       type: service
     version: 1.2.1
-  espressif/esp_io_expander_tca9554:
-    component_hash: ee94a439ade1c17129a491efe572c600899306a2ffadbde491852d95333e28b4
-    dependencies:
-    - name: espressif/esp_io_expander
-      registry_url: https://components.espressif.com
-      require: public
-      version: ^1.2.0
-    - name: idf
-      require: private
-      version: '>=5.2'
-    source:
-      registry_url: https://components.espressif.com
-      type: service
-    version: 2.0.3
-  espressif/esp_lcd_co5300:
-    component_hash: 21f84c5c825509ebacbddb379555b49092ae165b3e19f0edfbf6f8eff8aa036d
-    dependencies:
-    - name: espressif/cmake_utilities
-      registry_url: https://components.espressif.com
-      require: private
-      version: 0.*
-    - name: idf
-      require: private
-      version: '>=5.4'
-    source:
-      registry_url: https://components.espressif.com
-      type: service
-    version: 2.1.0
   espressif/esp_lcd_panel_io_additions:
     component_hash: 1856c8b2c11aaa8a9fd67481582162bcad25f7064661a995f35c2ee8dd10ebcc
     dependencies:
@@ -85,20 +57,6 @@ dependencies:
       registry_url: https://components.espressif.com
       type: service
     version: 1.2.1
-  espressif/esp_lcd_touch_cst816s:
-    component_hash: f017808eb754d3fe16987d413a2385f6356890f5737ee3fe36b6a548ea1d1d74
-    dependencies:
-    - name: espressif/esp_lcd_touch
-      registry_url: https://components.espressif.com
-      require: public
-      version: ^1.2.0
-    - name: idf
-      require: private
-      version: '>=5.2'
-    source:
-      registry_url: https://components.espressif.com
-      type: service
-    version: 1.1.2
   espressif/esp_lcd_touch_ft5x06:
     component_hash: d49f3dec3ae89617c31d96ac6f31bbc3212a0f049354eabd55c9457e454c56ae
     dependencies:
@@ -138,56 +96,6 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 9.5.0
-  waveshare/esp32_s3_touch_amoled_1_8:
-    component_hash: dd53b012d695112d0d6eaf137ec269b53b1518a64f56f2993f47e55b4e28b5f5
-    dependencies:
-    - name: espressif/esp_codec_dev
-      registry_url: https://components.espressif.com
-      require: public
-      version: ~1.5
-    - name: espressif/esp_io_expander_tca9554
-      registry_url: https://components.espressif.com
-      require: public
-      version: ^2
-    - name: espressif/esp_lcd_panel_io_additions
-      registry_url: https://components.espressif.com
-      require: private
-      version: ^1
-    - name: espressif/esp_lcd_co5300
-      registry_url: https://components.espressif.com
-      require: private
-      version: ^2.0.3
-    - name: espressif/esp_lcd_touch_cst816s
-      registry_url: https://components.espressif.com
-      require: private
-      version: ^1.1.1~1
-    - name: espressif/esp_lcd_touch_ft5x06
-      registry_url: https://components.espressif.com
-      require: private
-      version: ^1.1.0~1
-    - name: espressif/esp_lvgl_port
-      registry_url: https://components.espressif.com
-      require: public
-      version: ^2
-    - name: idf
-      require: private
-      version: '>=5.3'
-    - name: lvgl/lvgl
-      registry_url: https://components.espressif.com
-      require: private
-      version: '>=8,<10'
-    - name: espressif/usb
-      registry_url: https://components.espressif.com
-      require: public
-      rules:
-      - if: idf_version >=6.0
-      version: ^1.0.0
-    source:
-      registry_url: https://components.espressif.com/
-      type: service
-    targets:
-    - esp32s3
-    version: 2.0.3
   waveshare/esp32_s3_touch_amoled_2_06:
     component_hash: a68c5c26aabb00634f46834116a62413f75f34d672a8b3c639b8f8253160ec68
     dependencies:
@@ -248,8 +156,7 @@ direct_dependencies:
 - espressif/esp_codec_dev
 - idf
 - lvgl/lvgl
-- waveshare/esp32_s3_touch_amoled_1_8
 - waveshare/esp32_s3_touch_amoled_2_06
-manifest_hash: d8a37fd994b4ab024429a810638c9a89133edf7dbe8fb569caaedbd68769b90b
+manifest_hash: 35af882cb58ff39635ca62c86178793ab08e0ef3f7bd998c8a9a9ccacb9a6d1e
 target: esp32s3
 version: 2.0.0

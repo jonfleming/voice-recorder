@@ -1,6 +1,17 @@
 dependencies:
   idf: ">=5.5"
-  waveshare/esp32_s3_touch_amoled_1_8: "^2.0.3"
-  waveshare/esp32_s3_touch_amoled_2_06: "^2.0.0"
+  # Exactly one Waveshare BSP per build. Both export the same bsp_* symbols,
+  # so linking both produces a 1.8 display/touch init on 2.06 hardware.
+  # CMakeLists.txt sets VOICE_RECORDER_BOARD before project().
+  waveshare/esp32_s3_touch_amoled_1_8:
+    version: "^2.0.3"
+    require: public
+    rules:
+      - if: "$VOICE_RECORDER_BOARD != waveshare_amoled_2_06"
+  waveshare/esp32_s3_touch_amoled_2_06:
+    version: "^2.0.0"
+    require: public
+    rules:
+      - if: "$VOICE_RECORDER_BOARD == waveshare_amoled_2_06"
   espressif/esp_codec_dev: "^1.5.0"
   lvgl/lvgl: "^9.2.2"

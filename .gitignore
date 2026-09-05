@@ -1,8 +1,10 @@
 # ESP-IDF Build Artifacts
 build/
+build_206/
 sdkconfig
 sdkconfig.old
 sdkconfig.bak
+sdkconfig_206
 
 # If you want to keep sdkconfig in version control, comment the lines above and keep sdkconfig.defaults as the source of truth.
 # This project keeps sdkconfig.defaults (LFN_HEAP, BUTTON_B=-1, PSRAM octal) and generates sdkconfig on build.

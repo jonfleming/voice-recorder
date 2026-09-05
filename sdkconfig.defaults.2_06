@@ -1,6 +1,13 @@
-# Voice Recorder - Waveshare ESP32-S3 AMOLED 2.06" (410x502 QSPI, CO5300/SH8601)
-# Overlay on top of sdkconfig.defaults:
-#   idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.2_06" build
-# or: idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.2_06" flash monitor
+# Overlay for Waveshare ESP32-S3 Touch AMOLED 2.06 (410x502).
+# Applied automatically when building with -DWAVESHARE_AMOLED_2_06_BOARD=ON.
+# Delete sdkconfig first if you previously configured a 1.8 build.
 CONFIG_TARGET_BOARD_1_8=n
 CONFIG_TARGET_BOARD_2_06=y
+
+# 2.06 ships with 32 MB flash (1.8 is 16 MB). QIO matches Waveshare examples.
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+CONFIG_ESPTOOLPY_FLASHSIZE_32MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE="32MB"
+
+CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_ESP32S3_DATA_CACHE_LINE_64B=y
