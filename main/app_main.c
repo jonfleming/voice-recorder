@@ -20,8 +20,16 @@
 #include "power_manager.h"
 #include "state_machine.h"
 #include "wav.h"
+#include "voice_recorder.h"
+#ifdef WATCH_OS_SHELL
+#include "battery_indicator.h"
+#include "watch_display.h"
+#endif
 
 static const char *TAG = "app_main";
+
+// Strong definition in watch-os; no-op when this firmware is flashed alone.
+void app_select_request_menu(void) __attribute__((weak));
 
 static app_state_t s_state = STATE_IDLE;
 static wav_file_info_t s_files[FS_MAX_FILES];
@@ -51,17 +59,23 @@ static void set_state(app_state_t ns)
     s_state = ns;
 }
 
-void app_main(void)
+void voice_recorder_run(void)
 {
     ESP_LOGI(TAG, "Voice Recorder firmware starting");
     ESP_LOGI(TAG, "Target: %s  panel %dx%d  audio %dch",
              board_name(), BOARD_LCD_H_RES, BOARD_LCD_V_RES, BOARD_AUDIO_CHANNELS);
 
     // Init display + LVGL. The linked BSP owns QSPI + touch (1.8: CST820/FT5x06
-    // INT 21; 2.06: FT5x06 INT 38 RST 9). Do not link both BSPs.
+    // INT 21; 2.06: FT5x06 INT 38 RST 9). Do not link both BSPs. watch-os on
+    // the 1.8 uses init_lvgl() instead of bsp_display_start(): stock BSP 2.0.3
+    // panics if the touch probe fails (NULL handle → lvgl_port_add_touch).
     esp_log_level_t i2c_log = esp_log_level_get("i2c.master");
     esp_log_level_set("i2c.master", ESP_LOG_NONE);
+#ifdef WATCH_OS_SHELL
+    lv_display_t *disp = watch_display_start();
+#else
     lv_display_t *disp = bsp_display_start();
+#endif
     esp_log_level_set("i2c.master", i2c_log);
     if (!disp) {
         ESP_LOGE(TAG, "Display init failed - check QSPI wiring, PSRAM octal mode, and board CMake flag");
@@ -109,11 +123,26 @@ void app_main(void)
     refresh_file_list();
     ui_show_file_browser(s_files, s_file_count, s_selected);
     set_state(STATE_FILE_BROWSER);
+#ifdef WATCH_OS_SHELL
+    battery_indicator_start();
+#endif
 
     int64_t last_ui_update = 0;
     int64_t last_rec_update = 0;
 
     while (1) {
+        if (button_a_was_long_pressed()) {
+            ESP_LOGI(TAG, "Long-press A: return to start menu");
+            if (s_state == STATE_RECORDING) {
+                recorder_stop();
+            }
+            if (player_is_playing()) {
+                player_stop();
+            }
+            if (app_select_request_menu) {
+                app_select_request_menu();
+            }
+        }
         bool a_press = button_a_was_pressed();
         bool b_press = button_b_was_pressed() || ui_play_requested();
         int64_t now_ms = esp_timer_get_time()/1000;
@@ -226,3 +255,10 @@ void app_main(void)
         vTaskDelay(pdMS_TO_TICKS(20));
     }
 }
+
+#ifndef WATCH_OS_SHELL
+void app_main(void)
+{
+    voice_recorder_run();
+}
+#endif

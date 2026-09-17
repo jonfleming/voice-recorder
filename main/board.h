@@ -16,6 +16,7 @@
  *   2.06 mic is ES7210 stereo; 1.8 mic is ES8311 mono.
  */
 #include "sdkconfig.h"
+#include "esp_err.h"
 #include "bsp/esp-bsp.h"
 
 #if defined(WAVESHARE_AMOLED_2_06_BOARD) && WAVESHARE_AMOLED_2_06_BOARD

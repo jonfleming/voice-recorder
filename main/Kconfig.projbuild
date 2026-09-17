@@ -54,6 +54,6 @@ menu "Voice Recorder Config"
 
     config BUTTON_LONG_PRESS_MS
         int "Long press threshold ms"
-        default 1000
+        default 1500
 
 endmenu

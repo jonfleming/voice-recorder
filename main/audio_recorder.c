@@ -57,8 +57,7 @@ static void generate_filename(char *out, size_t len)
         }
         return;
     }
-    gmtime_r(&now, &tm);
-    // Use localtime if RTC set to local; keep gmtime for deterministic
+    localtime_r(&now, &tm);
     snprintf(out, len, BSP_SD_MOUNT_POINT "/%04d%02d%02d_%02d%02d%02d.wav",
              tm.tm_year+1900, tm.tm_mon+1, tm.tm_mday,
              tm.tm_hour, tm.tm_min, tm.tm_sec);
